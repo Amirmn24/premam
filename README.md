@@ -1,0 +1,31 @@
+# Premam
+
+کلاینت HTTP مشابه Postman با Next.js، React و TypeScript.
+
+## اجرا
+
+```cmd
+cd c:\Users\Asus\Documents\premam
+npm install
+npm run dev
+```
+
+برنامه روی `http://127.0.0.1:3000` اجرا می‌شود.
+
+## بخش‌های پیاده‌سازی‌شده
+
+1. **رابط کاربری** — چیدمان واکنش‌گرا، چند تب، حالت تاریک
+2. **انتخاب متد HTTP** — GET, POST, PUT, PATCH, DELETE
+3. **URL و اعتبارسنجی** — بررسی خالی نبودن و ساختار http/https
+4. **مدیریت پارامترها** — افزودن/حذف/ویرایش و همگام‌سازی با URL
+
+## ساختار پروژه
+
+```
+src/
+├── app/              # Next.js App Router
+├── components/       # کامپوننت‌های UI
+├── contexts/         # State management (Theme, Tabs)
+├── lib/              # توابع کمکی (URL validation)
+└── types/            # TypeScript types
+```
