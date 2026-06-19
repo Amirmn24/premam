@@ -1,12 +1,21 @@
 "use client";
 
-import { ThemeProvider, TabsProvider } from "@/contexts/AppContext";
+import {
+  ThemeProvider,
+  TabsProvider,
+  CollectionsProvider,
+  HistoryProvider,
+} from "@/contexts/AppContext";
 import type { ReactNode } from "react";
 
 export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <ThemeProvider>
-      <TabsProvider>{children}</TabsProvider>
+      <TabsProvider>
+        <CollectionsProvider>
+          <HistoryProvider>{children}</HistoryProvider>
+        </CollectionsProvider>
+      </TabsProvider>
     </ThemeProvider>
   );
 }
