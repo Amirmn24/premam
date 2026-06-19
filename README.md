@@ -1,16 +1,6 @@
-# Premam
+# WP second assignment
 
 کلاینت HTTP مشابه Postman با Next.js، React و TypeScript.
-
-## اجرا
-
-```cmd
-cd c:\Users\Asus\Documents\premam
-npm install
-npm run dev
-```
-
-برنامه روی `http://127.0.0.1:3000` اجرا می‌شود.
 
 ## بخش‌های پیاده‌سازی‌شده
 
@@ -27,13 +17,3 @@ npm run dev
 11. **ورود/خروج مجموعه‌ها** — import/export فایل JSON
 12. **چند تب** — مدیریت همزمان چند درخواست با state مستقل
 
-## ساختار پروژه
-
-```
-src/
-├── app/              # Next.js App Router
-├── components/       # کامپوننت‌های UI
-├── contexts/         # State management (Theme, Tabs)
-├── lib/              # توابع کمکی (URL validation)
-└── types/            # TypeScript types
-```
