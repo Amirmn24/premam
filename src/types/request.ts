@@ -13,6 +13,8 @@ export interface RequestTab {
   method: HttpMethod;
   url: string;
   params: KeyValuePair[];
+  headers: KeyValuePair[];
+  body: string;
 }
 
 export interface UrlValidationResult {

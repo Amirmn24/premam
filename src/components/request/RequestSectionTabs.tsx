@@ -3,22 +3,21 @@
 import { useState } from "react";
 import type { RequestSectionTab } from "@/types/request";
 import { ParamsEditor } from "./ParamsEditor";
+import { HeadersEditor } from "./HeadersEditor";
+import { BodyEditor } from "./BodyEditor";
 import { useActiveRequest } from "@/contexts/AppContext";
 import { buildUrlWithParams } from "@/lib/url";
+import { methodSupportsBody } from "@/lib/http";
 
-const SECTION_TABS: { id: RequestSectionTab; label: string; disabled?: boolean }[] = [
+const SECTION_TABS: { id: RequestSectionTab; label: string }[] = [
   { id: "params", label: "پارامترها" },
-  { id: "headers", label: "هدرها", disabled: true },
-  { id: "body", label: "بدنه", disabled: true },
+  { id: "headers", label: "هدرها" },
+  { id: "body", label: "بدنه" },
 ];
 
 export function RequestSectionTabs() {
   const [activeSection, setActiveSection] = useState<RequestSectionTab>("params");
-  const { tab, setParams } = useActiveRequest();
-
-  const handleParamsChange = (params: typeof tab.params) => {
-    setParams(params);
-  };
+  const { tab, setParams, setHeaders, setBody } = useActiveRequest();
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -27,18 +26,18 @@ export function RequestSectionTabs() {
           <button
             key={section.id}
             type="button"
-            disabled={section.disabled}
-            onClick={() => !section.disabled && setActiveSection(section.id)}
+            onClick={() => setActiveSection(section.id)}
             className={`relative px-4 py-2.5 text-sm font-medium transition-colors ${
-              section.disabled
-                ? "cursor-not-allowed text-muted-foreground/40"
-                : activeSection === section.id
-                  ? "text-accent"
-                  : "text-muted-foreground hover:text-foreground"
+              activeSection === section.id
+                ? "text-accent"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             {section.label}
-            {activeSection === section.id && !section.disabled && (
+            {section.id === "body" && !methodSupportsBody(tab.method) && (
+              <span className="mr-1 text-[10px] text-muted-foreground/60">(—)</span>
+            )}
+            {activeSection === section.id && (
               <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full bg-accent" />
             )}
           </button>
@@ -51,7 +50,7 @@ export function RequestSectionTabs() {
             <p className="mb-3 text-xs text-muted-foreground">
               پارامترهای کوئری به‌صورت خودکار در URL اعمال می‌شوند.
             </p>
-            <ParamsEditor params={tab.params} onChange={handleParamsChange} />
+            <ParamsEditor params={tab.params} onChange={setParams} />
             {buildUrlWithParams(tab.url, tab.params) && (
               <div className="mt-4 rounded-lg border border-dashed border-border p-3">
                 <p className="mb-1 text-xs font-medium text-muted-foreground">
@@ -73,11 +72,16 @@ export function RequestSectionTabs() {
         )}
 
         {activeSection === "headers" && (
-          <p className="text-sm text-muted-foreground">بخش هدرها در مرحله بعد پیاده‌سازی می‌شود.</p>
+          <div>
+            <p className="mb-3 text-xs text-muted-foreground">
+              هدرهای فعال هنگام ارسال درخواست اعمال می‌شوند (مثل Content-Type و Authorization).
+            </p>
+            <HeadersEditor headers={tab.headers} onChange={setHeaders} />
+          </div>
         )}
 
         {activeSection === "body" && (
-          <p className="text-sm text-muted-foreground">بخش بدنه در مرحله بعد پیاده‌سازی می‌شود.</p>
+          <BodyEditor method={tab.method} body={tab.body} onChange={setBody} />
         )}
       </div>
     </div>

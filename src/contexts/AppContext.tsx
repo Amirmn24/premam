@@ -11,6 +11,7 @@ import {
 } from "react";
 import type { HttpMethod, RequestTab } from "@/types/request";
 import { createEmptyParam, createId } from "@/lib/url";
+import { createEmptyKeyValue } from "@/lib/keyValue";
 
 interface ThemeContextValue {
   isDark: boolean;
@@ -72,6 +73,14 @@ function createDefaultTab(index: number): RequestTab {
     method: "GET",
     url: "",
     params: [createEmptyParam()],
+    headers: [
+      {
+        ...createEmptyKeyValue(),
+        key: "Content-Type",
+        value: "application/json",
+      },
+    ],
+    body: "",
   };
 }
 
@@ -172,10 +181,22 @@ export function useActiveRequest() {
     [updateActiveTab],
   );
 
+  const setHeaders = useCallback(
+    (headers: RequestTab["headers"]) => updateActiveTab({ headers }),
+    [updateActiveTab],
+  );
+
+  const setBody = useCallback(
+    (body: string) => updateActiveTab({ body }),
+    [updateActiveTab],
+  );
+
   return {
     tab: activeTab,
     setMethod,
     setUrl,
     setParams,
+    setHeaders,
+    setBody,
   };
 }

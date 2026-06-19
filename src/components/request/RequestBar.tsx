@@ -11,7 +11,7 @@ import {
 } from "@/lib/url";
 
 interface RequestBarProps {
-  onSend?: (finalUrl: string) => void;
+  onSend?: (finalUrl: string) => void | Promise<void>;
   isLoading?: boolean;
 }
 
@@ -27,7 +27,7 @@ export function RequestBar({ onSend, isLoading = false }: RequestBarProps) {
     }
   }, [tab.url, tab.params, setUrl, setParams]);
 
-  const handleSend = useCallback(() => {
+  const handleSend = useCallback(async () => {
     const finalUrl = buildUrlWithParams(tab.url, tab.params);
     const validationError = validateUrlForSend(finalUrl);
 
@@ -37,7 +37,7 @@ export function RequestBar({ onSend, isLoading = false }: RequestBarProps) {
     }
 
     setSendError(null);
-    onSend?.(finalUrl);
+    await onSend?.(finalUrl);
   }, [tab.url, tab.params, onSend]);
 
   const previewUrl = buildUrlWithParams(tab.url, tab.params);
