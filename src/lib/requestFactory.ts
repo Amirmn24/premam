@@ -2,6 +2,7 @@ import type { RequestTab } from "@/types/request";
 import type { HistorySnapshot, SavedRequest } from "@/types/storage";
 import { createEmptyKeyValue } from "@/lib/keyValue";
 import { createEmptyParam, createId } from "@/lib/url";
+import type { BodyType } from "@/types/request";
 
 export function createDefaultHeaders() {
   return [
@@ -22,6 +23,7 @@ export function createDefaultTab(index: number, id?: string): RequestTab {
     params: [createEmptyParam()],
     headers: createDefaultHeaders(),
     body: "",
+    bodyType: "json",
   };
 }
 
@@ -33,7 +35,50 @@ export function resetTabValues(tab: RequestTab): RequestTab {
     params: [createEmptyParam()],
     headers: createDefaultHeaders(),
     body: "",
+    bodyType: "json",
   };
+}
+
+export function normalizeTab(tab: RequestTab): RequestTab {
+  return {
+    ...tab,
+    bodyType: tab.bodyType ?? inferBodyType(tab),
+  };
+}
+
+function inferBodyType(tab: RequestTab): BodyType {
+  const contentType = tab.headers.find(
+    (h) => h.enabled && h.key.trim().toLowerCase() === "content-type",
+  )?.value;
+
+  if (contentType?.toLowerCase().includes("application/json")) {
+    return "json";
+  }
+
+  return "raw";
+}
+
+export function syncContentTypeHeader(
+  headers: RequestTab["headers"],
+  bodyType: BodyType,
+): RequestTab["headers"] {
+  const value =
+    bodyType === "json" ? "application/json" : "text/plain";
+
+  const index = headers.findIndex(
+    (h) => h.key.trim().toLowerCase() === "content-type",
+  );
+
+  if (index === -1) {
+    return [
+      ...headers,
+      { ...createEmptyKeyValue(), key: "Content-Type", value, enabled: true },
+    ];
+  }
+
+  return headers.map((h, i) =>
+    i === index ? { ...h, value, enabled: true } : h,
+  );
 }
 
 export function tabToSnapshot(tab: RequestTab): HistorySnapshot {
@@ -44,6 +89,7 @@ export function tabToSnapshot(tab: RequestTab): HistorySnapshot {
     params: tab.params,
     headers: tab.headers,
     body: tab.body,
+    bodyType: tab.bodyType,
   };
 }
 
@@ -61,7 +107,16 @@ export function snapshotToTab(
     headers:
       snapshot.headers.length > 0 ? snapshot.headers : createDefaultHeaders(),
     body: snapshot.body,
+    bodyType: snapshot.bodyType ?? inferBodyTypeFromSnapshot(snapshot),
   };
+}
+
+function inferBodyTypeFromSnapshot(snapshot: HistorySnapshot): BodyType {
+  const contentType = snapshot.headers.find(
+    (h) => h.enabled && h.key.trim().toLowerCase() === "content-type",
+  )?.value;
+
+  return contentType?.toLowerCase().includes("application/json") ? "json" : "raw";
 }
 
 export function tabToSavedRequest(tab: RequestTab, name?: string): SavedRequest {
@@ -73,6 +128,7 @@ export function tabToSavedRequest(tab: RequestTab, name?: string): SavedRequest 
     params: tab.params,
     headers: tab.headers,
     body: tab.body,
+    bodyType: tab.bodyType,
     createdAt: new Date().toISOString(),
   };
 }

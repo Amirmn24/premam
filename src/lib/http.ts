@@ -1,4 +1,4 @@
-import type { HttpMethod, KeyValuePair } from "@/types/request";
+import type { HttpMethod, KeyValuePair, BodyType } from "@/types/request";
 import type {
   HttpResponseData,
   RequestError,
@@ -48,14 +48,17 @@ export function validateBody(
   method: HttpMethod,
   body: string,
   headers: KeyValuePair[],
+  bodyType: BodyType = "raw",
 ): RequestError | null {
   if (!methodSupportsBody(method) || !body.trim()) {
     return null;
   }
 
   const contentType = findContentType(headers)?.toLowerCase() ?? "";
+  const isJsonMode =
+    bodyType === "json" || contentType.includes("application/json");
 
-  if (contentType.includes("application/json")) {
+  if (isJsonMode) {
     try {
       JSON.parse(body);
     } catch {
@@ -119,6 +122,7 @@ export interface SendRequestOptions {
   url: string;
   headers: KeyValuePair[];
   body: string;
+  bodyType?: BodyType;
   timeoutMs?: number;
   signal?: AbortSignal;
 }
@@ -129,10 +133,10 @@ export async function sendHttpRequest(
   | { ok: true; data: HttpResponseData }
   | { ok: false; error: RequestError }
 > {
-  const { method, url, headers, body, timeoutMs = DEFAULT_TIMEOUT_MS } =
+  const { method, url, headers, body, bodyType = "raw", timeoutMs = DEFAULT_TIMEOUT_MS } =
     options;
 
-  const bodyError = validateBody(method, body, headers);
+  const bodyError = validateBody(method, body, headers, bodyType);
   if (bodyError) {
     return { ok: false, error: bodyError };
   }

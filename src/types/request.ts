@@ -1,5 +1,7 @@
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
+export type BodyType = "json" | "raw";
+
 export interface KeyValuePair {
   id: string;
   key: string;
@@ -15,6 +17,7 @@ export interface RequestTab {
   params: KeyValuePair[];
   headers: KeyValuePair[];
   body: string;
+  bodyType: BodyType;
 }
 
 export interface UrlValidationResult {

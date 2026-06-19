@@ -17,7 +17,7 @@ const SECTION_TABS: { id: RequestSectionTab; label: string }[] = [
 
 export function RequestSectionTabs() {
   const [activeSection, setActiveSection] = useState<RequestSectionTab>("params");
-  const { tab, setParams, setHeaders, setBody } = useActiveRequest();
+  const { tab, setParams, setHeaders, setBody, setBodyType } = useActiveRequest();
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -81,7 +81,15 @@ export function RequestSectionTabs() {
         )}
 
         {activeSection === "body" && (
-          <BodyEditor method={tab.method} body={tab.body} onChange={setBody} />
+          <BodyEditor
+            method={tab.method}
+            body={tab.body}
+            bodyType={tab.bodyType}
+            headers={tab.headers}
+            onChange={setBody}
+            onBodyTypeChange={setBodyType}
+            onHeadersChange={setHeaders}
+          />
         )}
       </div>
     </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { TabResponseState } from "@/types/response";
 import { StatusBadge } from "./StatusBadge";
 import { ErrorAlert } from "./ErrorAlert";
@@ -9,6 +10,8 @@ interface ResponsePanelProps {
   state: TabResponseState;
 }
 
+type ResponseTab = "body" | "headers";
+
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -17,6 +20,7 @@ function formatBytes(bytes: number): string {
 
 export function ResponsePanel({ state }: ResponsePanelProps) {
   const { loading, response, error } = state;
+  const [activeTab, setActiveTab] = useState<ResponseTab>("body");
 
   return (
     <div className="flex min-h-[200px] flex-1 flex-col border-t border-border lg:min-h-0 lg:border-l lg:border-t-0">
@@ -30,11 +34,12 @@ export function ResponsePanel({ state }: ResponsePanelProps) {
         )}
       </div>
 
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="relative flex flex-1 flex-col overflow-hidden">
         {loading && (
-          <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8">
-            <span className="h-8 w-8 animate-spin rounded-full border-2 border-accent/30 border-t-accent" />
-            <p className="text-sm text-muted-foreground">در حال دریافت پاسخ...</p>
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-surface/80 backdrop-blur-sm">
+            <span className="h-10 w-10 animate-spin rounded-full border-2 border-accent/30 border-t-accent" />
+            <p className="text-sm font-medium text-foreground">در حال دریافت پاسخ...</p>
+            <p className="text-xs text-muted-foreground">لطفاً صبر کنید</p>
           </div>
         )}
 
@@ -50,20 +55,69 @@ export function ResponsePanel({ state }: ResponsePanelProps) {
               <StatusBadge status={response.status} statusText={response.statusText} />
             </div>
 
-            <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-              <div className="border-b border-border px-4 py-2">
-                <span className="text-xs font-medium text-muted-foreground">محتوای پاسخ</span>
-              </div>
-              <pre
-                className="flex-1 overflow-auto p-4 font-mono text-xs leading-relaxed text-foreground"
-                dir="ltr"
+            <div className="flex gap-1 border-b border-border px-2">
+              <button
+                type="button"
+                onClick={() => setActiveTab("body")}
+                className={`px-3 py-2 text-xs font-medium ${
+                  activeTab === "body"
+                    ? "border-b-2 border-accent text-accent"
+                    : "text-muted-foreground"
+                }`}
               >
-                {response.body
-                  ? isJsonContent(response.body)
-                    ? formatResponseBody(response.body)
-                    : response.body
-                  : "(بدنه خالی)"}
-              </pre>
+                بدنه
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("headers")}
+                className={`px-3 py-2 text-xs font-medium ${
+                  activeTab === "headers"
+                    ? "border-b-2 border-accent text-accent"
+                    : "text-muted-foreground"
+                }`}
+              >
+                هدرها ({Object.keys(response.headers).length})
+              </button>
+            </div>
+
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+              {activeTab === "body" && (
+                <pre
+                  className="flex-1 overflow-auto p-4 font-mono text-xs leading-relaxed text-foreground"
+                  dir="ltr"
+                >
+                  {response.body
+                    ? isJsonContent(response.body)
+                      ? formatResponseBody(response.body)
+                      : response.body
+                    : "(بدنه خالی)"}
+                </pre>
+              )}
+
+              {activeTab === "headers" && (
+                <div className="flex-1 overflow-auto p-4">
+                  {Object.keys(response.headers).length === 0 ? (
+                    <p className="text-xs text-muted-foreground">(بدون هدر)</p>
+                  ) : (
+                    <table className="w-full text-xs" dir="ltr">
+                      <thead>
+                        <tr className="border-b border-border text-muted-foreground">
+                          <th className="pb-2 text-left font-medium">کلید</th>
+                          <th className="pb-2 text-left font-medium">مقدار</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {Object.entries(response.headers).map(([key, value]) => (
+                          <tr key={key} className="border-b border-border/50">
+                            <td className="py-2 pr-4 font-medium text-accent">{key}</td>
+                            <td className="break-all py-2 text-foreground">{value}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         )}

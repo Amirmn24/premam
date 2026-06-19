@@ -1,6 +1,6 @@
 import type { RequestTab } from "@/types/request";
 import type { Collection, HistoryEntry, TabsPersistence } from "@/types/storage";
-import { createDefaultTab } from "@/lib/requestFactory";
+import { createDefaultTab, normalizeTab } from "@/lib/requestFactory";
 
 export const STORAGE_KEYS = {
   TABS: "premam-tabs",
@@ -43,7 +43,7 @@ export function loadTabsState(): { tabs: RequestTab[]; activeTabId: string } {
     ? stored.activeTabId
     : stored.tabs[0].id;
 
-  return { tabs: stored.tabs, activeTabId };
+  return { tabs: stored.tabs.map(normalizeTab), activeTabId };
 }
 
 export function saveTabsState(tabs: RequestTab[], activeTabId: string): void {

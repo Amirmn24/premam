@@ -265,6 +265,11 @@ export function useActiveRequest() {
     [updateActiveTab],
   );
 
+  const setBodyType = useCallback(
+    (bodyType: RequestTab["bodyType"]) => updateActiveTab({ bodyType }),
+    [updateActiveTab],
+  );
+
   return {
     tab: activeTab,
     setMethod,
@@ -272,6 +277,7 @@ export function useActiveRequest() {
     setParams,
     setHeaders,
     setBody,
+    setBodyType,
   };
 }
 
@@ -360,6 +366,7 @@ export function CollectionsProvider({ children }: { children: ReactNode }) {
         params: request.params,
         headers: request.headers,
         body: request.body,
+        bodyType: request.bodyType,
       };
 
       if (mode === "new") {

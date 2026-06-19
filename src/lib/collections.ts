@@ -7,13 +7,14 @@ export function exportCollectionToJson(collection: Collection): string {
     type: "premam-collection",
     name: collection.name,
     exportedAt: new Date().toISOString(),
-    requests: collection.requests.map(({ name, method, url, params, headers, body }) => ({
+    requests: collection.requests.map(({ name, method, url, params, headers, body, bodyType }) => ({
       name,
       method,
       url,
       params,
       headers,
       body,
+      bodyType,
     })),
   };
 
@@ -72,6 +73,7 @@ export function parseImportedCollection(
         params: Array.isArray(request.params) ? request.params : [],
         headers: Array.isArray(request.headers) ? request.headers : [],
         body: request.body ?? "",
+        bodyType: request.bodyType,
         createdAt: now,
       })),
     };

@@ -45,6 +45,7 @@ export function HttpClient() {
         url: finalUrl,
         headers: tab.headers,
         body: tab.body,
+        bodyType: tab.bodyType,
       });
 
       addHistoryEntry({
@@ -87,7 +88,10 @@ export function HttpClient() {
 
         <div className="flex min-h-0 flex-1 flex-col">
           <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-            <div className="flex min-h-0 flex-1 flex-col">
+            <div className="relative flex min-h-0 flex-1 flex-col">
+              {currentResponse.loading && (
+                <div className="pointer-events-none absolute inset-0 z-10 bg-surface/40 backdrop-blur-[1px]" />
+              )}
               <div className="border-b border-border p-4">
                 <RequestBar
                   onSend={handleSend}

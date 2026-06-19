@@ -1,4 +1,4 @@
-import type { HttpMethod, KeyValuePair } from "@/types/request";
+import type { HttpMethod, KeyValuePair, BodyType } from "@/types/request";
 
 export interface SavedRequest {
   id: string;
@@ -8,6 +8,7 @@ export interface SavedRequest {
   params: KeyValuePair[];
   headers: KeyValuePair[];
   body: string;
+  bodyType?: BodyType;
   createdAt: string;
 }
 
@@ -26,6 +27,7 @@ export interface HistorySnapshot {
   params: KeyValuePair[];
   headers: KeyValuePair[];
   body: string;
+  bodyType?: BodyType;
 }
 
 export interface HistoryEntry {
